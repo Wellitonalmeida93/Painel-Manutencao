@@ -2,17 +2,15 @@ name: Bot Relatorio PowerBI
 
 on:
   schedule:
-    # Agendamento cron: roda de Segunda a Sexta às 08:00 do horário de Brasília (11:00 UTC)
-    - cron: '0 11 * * 1-5'
-  workflow_dispatch: # Mantém o botão cinza "Run workflow" ativo para disparar manualmente
+    - cron: '0 11 * * 1-5' # Roda de segunda a sexta às 08:00 (Horário de Brasília)
+  workflow_dispatch: # Ativa o botão de rodar manualmente
 
 jobs:
   rodar-automacao:
     runs-on: ubuntu-latest
     
-    # Variável de ambiente global do Job para forçar a nova versão do Node.js exigida pelo GitHub
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' # Elimina avisos de Node obsoleto
 
     steps:
       - name: Puxar arquivos do repositorio
@@ -28,6 +26,5 @@ jobs:
 
       - name: Executar o Script Python
         env:
-          # Associa a senha guardada no cofre do GitHub ('Secrets') para dentro do código Python
-          SENHA_EMAIL: ${{ secrets.SENHA_EMAIL }}
+          SENHA_EMAIL: ${{ secrets.SENHA_EMAIL }} # Puxa do cofre seguro
         run: python relatorio_salesco.py
