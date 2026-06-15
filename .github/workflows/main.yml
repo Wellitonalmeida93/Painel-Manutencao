@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Passo 1: Baixa os arquivos do seu repositório (relatorio.py) para o servidor da nuvem
+    # Passo 1: Baixa os arquivos do seu repositório para o servidor da nuvem
     - name: 1. Puxar arquivos do repositório
       uses: actions/checkout@v4
 
@@ -32,9 +32,10 @@ jobs:
         pip install playwright
         playwright install --with-deps chromium
 
-    # Passo 4: Junta a sua senha secreta guardada no GitHub Secrets e roda o script correto
+    # Passo 4: Entra na subpasta correta e executa o script Python usando a senha secreta
     - name: 4. Executar o Script Python
       env:
         SENHA_EMAIL: ${{ secrets.SENHA_EMAIL }}
+      working-directory: ./SALESCO-EMAIL
       run: |
         python relatorio.py
