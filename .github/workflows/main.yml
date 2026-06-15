@@ -1,0 +1,26 @@
+name: Bot Relatorio PowerBI
+
+on:
+  schedule:
+    - cron: '0 11 * * 1-5' # 11:00 UTC = 08:00 Brasil
+  workflow_dispatch:
+
+jobs:
+  rodar-automacao:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Puxar arquivos
+        uses: actions/checkout@v3
+
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Rodar Script
+        env:
+          SENHA_EMAIL: ${{ secrets.SENHA_EMAIL }}
+        run: python relatorio_salesco.py
