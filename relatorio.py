@@ -1,5 +1,7 @@
 import os
 import time
+import sys
+import traceback
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -8,7 +10,6 @@ from email.mime.image import MIMEImage
 # Bibliotecas para automação do navegador
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 
 # --- CONFIGURAÇÕES ---
 URL_POWER_BI = "https://app.powerbi.com/view?r=eyJrIjoiMjY0OWFhODQtYmU3Yy00NTE3LWIzZDYtZDY5MzUyNTlhYzRkIiwidCI6ImY0Y2Q4NWNjLWQ1YTAtNGVmZC04NzkzLThhNzg5NDE5MGNmYSJ9"
@@ -24,45 +25,49 @@ DESTINATARIOS = [
 ]
 
 def capturar_print_powerbi(url, caminho_saida):
-    print("🤖 Iniciando captura do Power BI...")
+    print("🤖 [DIAGNÓSTICO] Iniciando a rotina do Selenium...")
     
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new")  # Modo invisível moderno
+    chrome_options.add_argument("--headless=new")  
     chrome_options.add_argument("--window-size=1600,1000") 
     chrome_options.add_argument("--force-device-scale-factor=1.2") 
     chrome_options.add_argument("--no-sandbox") 
     chrome_options.add_argument("--disable-dev-shm-usage") 
     chrome_options.add_argument("--disable-gpu") 
 
+    driver = None
     try:
-        # No GitHub Actions, o Selenium localiza o Chrome automaticamente!
+        print("⏳ [DIAGNÓSTICO] Tentando instanciar o webdriver.Chrome()...")
         driver = webdriver.Chrome(options=chrome_options)
-    except Exception as err_driver:
-        print(f"❌ Erro ao inicializar o Chrome: {err_driver}")
-        return False
-
-    try:
+        print("✅ [DIAGNÓSTICO] Navegador iniciado com sucesso!")
+        
+        print(f"⏳ [DIAGNÓSTICO] Acessando a URL do Power BI...")
         driver.get(url)
-        print("⏳ Aguardando 20 segundos para carregamento dos dados...")
+        
+        print("⏳ [DIAGNÓSTICO] Aguardando 20 segundos para renderização dos gráficos...")
         time.sleep(20) 
         
         driver.save_screenshot(caminho_saida)
-        print(f"✅ Print saved successfully at: {caminho_saida}")
+        print(f"✅ [DIAGNÓSTICO] Print gravado no disco virtual: {caminho_saida}")
         return True
+        
     except Exception as e:
-        print(f"❌ Erro durante a navegação: {e}")
+        print("\n❌ [ERRO CRÍTICO NO SELENIUM] Ocorreu uma falha no navegador:")
+        traceback.print_exc(file=sys.stdout)
         return False
     finally:
-        try:
-            driver.quit()
-        except:
-            pass
+        if driver:
+            try:
+                driver.quit()
+                print("🤖 [DIAGNÓSTICO] Instância do Chrome encerrada corretamente.")
+            except:
+                pass
 
 def enviar_email(caminho_imagem):
-    print("📧 Preparando e-mail para envio...")
+    print("📧 [DIAGNÓSTICO] Iniciando rotina de e-mail...")
     
     if not REMETENTE_SENHA:
-        print("❌ Erro: Variável 'SENHA_EMAIL' não encontrada!")
+        print("❌ [ERRO DE AMBIENTE] A chave 'SENHA_EMAIL' não foi mapeada ou está vazia no GitHub Secrets!")
         return
 
     try:
@@ -95,20 +100,25 @@ def enviar_email(caminho_imagem):
             img.add_header('Content-ID', f'<{cid_id}>')
             msg_corpo.attach(img)
 
+        print("⏳ [DIAGNÓSTICO] Conectando ao servidor SMTP do Gmail...")
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.starttls()
             server.login(REMETENTE_EMAIL, REMETENTE_SENHA)
             server.sendmail(REMETENTE_EMAIL, DESTINATARIOS, msg.as_string())
         
-        print("🚀 Relatório enviado com sucesso!")
+        print("🚀 [SUCESSO] Relatório enviado com sucesso!")
 
     except Exception as e:
-        print(f"❌ Erro no envio do e-mail: {e}")
+        print("\n❌ [ERRO CRÍTICO NO E-MAIL] Falha ao enviar via SMTP:")
+        traceback.print_exc(file=sys.stdout)
 
 if __name__ == "__main__":
+    print("🎬 [DIAGNÓSTICO] Script iniciado.")
     pasta_atual = os.path.dirname(os.path.abspath(__file__))
     CADA_PRINT = os.path.join(pasta_atual, "print_salesco_auto.png")
 
     sucesso = capturar_print_powerbi(URL_POWER_BI, CADA_PRINT)
     if sucesso:
         enviar_email(CADA_PRINT)
+    else:
+        print("🛑 [INFO] Execução abortada devido à falha no print.")
