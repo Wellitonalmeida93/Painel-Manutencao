@@ -6,7 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage 
 
-# Biblioteca da Microsoft para automação direto na nuvem
+# Biblioteca de automação de nuvem da Microsoft
 from playwright.sync_api import sync_playwright
 
 # --- CONFIGURAÇÕES 100% ONLINE ---
@@ -23,26 +23,25 @@ DESTINATARIOS = [
 ]
 
 def capturar_print_powerbi(url, caminho_saida):
-    print("🤖 [PLAYWRIGHT] Navegador virtual iniciado. Olhando para a internet...")
+    print("🤖 [PLAYWRIGHT] Abrindo navegador virtual direto na nuvem...")
     try:
         with sync_playwright() as p:
-            # Lança o navegador em modo invisível, ideal para servidores
             browser = p.chromium.launch(headless=True)
             context = browser.new_context(
                 viewport={"width": 1600, "height": 1000},
-                device_scale_factor=1.2 # Deixa os gráficos do print mais nítidos
+                device_scale_factor=1.2 # Melhora a nitidez dos gráficos
             )
             page = context.new_page()
             
-            print("⏳ [PLAYWRIGHT] Acessando o link do Power BI Online...")
+            print("⏳ [PLAYWRIGHT] Acessando o link público do Power BI...")
             page.goto(url)
             
             print("⏳ [PLAYWRIGHT] Aguardando 20 segundos para os gráficos carregarem na tela...")
             page.wait_for_timeout(20000) 
             
-            # Tira o print e salva na memória temporária do servidor do GitHub
+            # Tira o print e salva usando o caminho absoluto do servidor
             page.screenshot(path=caminho_saida)
-            print(f"✅ [PLAYWRIGHT] Print tirado e salvo temporariamente.")
+            print(f"✅ [PLAYWRIGHT] Print tirado e salvo em: {caminho_saida}")
             
             browser.close()
             return True
@@ -81,9 +80,10 @@ def enviar_email(caminho_imagem):
         </body>
         </html>
         """
-        msg.attach(MIMEText(corpo_html, 'html'))
+        msg_corpo.attach(MIMEText(corpo_html, 'html'))
 
-        # Lê a imagem que o Playwright acabou de tirar e acopla no e-mail
+        # Abre o arquivo local do servidor do GITHUB usando o caminho fixado
+        print(f"⏳ [SMTP] Lendo o arquivo de print do disco da nuvem: {caminho_imagem}")
         with open(caminho_imagem, 'rb') as img_f:
             img = MIMEImage(img_f.read())
             img.add_header('Content-ID', f'<{cid_id}>')
@@ -102,17 +102,18 @@ def enviar_email(caminho_imagem):
         traceback.print_exc(file=sys.stdout)
 
 if __name__ == "__main__":
-    print("🎬 Iniciando automação 100% Cloud.")
+    print("🎬 Iniciando automação 100% Cloud e independente.")
     
-    # Salva o print apenas na pasta temporária do servidor do GitHub
-    NOME_PRINT = "print_salesco_auto.png"
+    # Garante um caminho absoluto e idêntico para a criação e a leitura do arquivo na nuvem
+    pasta_do_script = os.path.dirname(os.path.abspath(__file__))
+    CAMINHO_DO_PRINT = os.path.join(pasta_do_script, "print_salesco_auto.png")
 
-    sucesso = capturar_print_powerbi(URL_POWER_BI, NOME_PRINT)
+    sucesso = capturar_print_powerbi(URL_POWER_BI, CAMINHO_DO_PRINT)
     if sucesso:
-        enviar_email(NOME_PRINT)
+        enviar_email(CAMINHO_DO_PRINT)
         
-        # Limpa o arquivo temporário após o envio para não deixar rastros
-        if os.path.exists(NOME_PRINT):
-            os.remove(NOME_PRINT)
+        # Deleta o arquivo temporário do servidor do GitHub após o envio
+        if os.path.exists(CAMINHO_DO_PRINT):
+            os.remove(CAMINHO_DO_PRINT)
     else:
         print("🛑 Execução cancelada porque a captura online falhou.")
