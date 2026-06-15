@@ -3,17 +3,17 @@ name: Bot Relatorio PowerBI
 on:
   schedule:
     - cron: '0 11 * * 1-5' # 11:00 UTC = 08:00 Brasil
-  workflow_dispatch: # Este comando permite rodar o código manualmente!
+  workflow_dispatch:
 
 jobs:
   rodar-automacao:
     runs-on: ubuntu-latest
     steps:
       - name: Puxar arquivos
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Atualizado de v3 para v4 (Suporta Node 24)
 
       - name: Instalar Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Atualizado de v4 para v5 (Suporta Node 24)
         with:
           python-version: '3.10'
 
