@@ -18,7 +18,8 @@ DESTINATARIOS = [
     "daniel.sacramento@pizzattolog.com.br",
     "lucas.justus@pizzattolog.com.br",
     "magdo.ferreira@pizzattolog.com.br",
-    "subcontratados@pizzattolog.com.br"
+    "subcontratados@pizzattolog.com.br",
+    "Welliton.almeida@pizzattolog.com.br"
 ]
 
 def capturar_print_powerbi(url, caminho_saida):
