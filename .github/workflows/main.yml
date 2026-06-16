@@ -2,8 +2,8 @@ name: Relatorio Diario Salesco
 
 on:
   schedule:
-    # Roda todos os dias às 17:30 do Horário de Brasília (20:30 UTC)
-    - cron: '30 20 * * *'
+    # Roda de segunda a sexta-feira (1-5) às 17:30 de Brasília (20:30 UTC)
+    - cron: '30 20 * * 1-5'
   
   # Mantém o botão para disparo manual no GitHub
   workflow_dispatch:
