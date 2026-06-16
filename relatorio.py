@@ -25,23 +25,22 @@ def capturar_print_powerbi(url, caminho_saida):
     print("🤖 [DIAGNÓSTICO] Iniciando a rotina do Playwright...")
     try:
         with sync_playwright() as p:
-            # Abre o navegador Chromium de forma invisível (headless) compatível com a nuvem
-            print("⏳ [DIAGNÓSTICO] Abrindo navegador virtual...")
+            print("⏳ [DIAGNÓSTICO] Abrindo navegador virtual Chromium...")
             browser = p.chromium.launch(headless=True)
             
-            # Configura o tamanho da tela para o print não cortar o relatório
+            # Força uma resolução de tela cheia padrão de monitor (1600x1000)
             context = browser.new_context(viewport={"width": 1600, "height": 1000})
             page = context.new_page()
             
             print("⏳ [DIAGNÓSTICO] Acessando a URL do Power BI...")
             page.goto(url)
             
-            print("⏳ [DIAGNÓSTICO] Aguardando 25 segundos para renderização completa dos gráficos...")
+            print("⏳ [DIAGNÓSTICO] Aguardando 25 segundos para renderização dos gráficos...")
             time.sleep(25)
             
-            # Tira o print da tela inteira
+            # Salva o print da página inteira
             page.screenshot(path=caminho_saida, full_page=True)
-            print(f"✅ [DIAGNÓSTICO] Print gravado com sucesso em: {caminho_saida}")
+            print(f"✅ [DIAGNÓSTICO] Print gravado em: {caminho_saida}")
             
             browser.close()
             return True
