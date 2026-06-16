@@ -3,6 +3,7 @@ import sys
 import time
 import traceback
 import smtplib
+from datetime import datetime
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -123,7 +124,7 @@ def enviar_email(caminho_imagem):
 
         msg["From"] = REMETENTE_EMAIL
         msg["To"] = ", ".join(DESTINATARIOS)
-        msg["Subject"] = "Relatório Diário Salesco"
+        msg["Subject"] = f"Relatório Diário Salesco - {datetime.now().strftime('%d/%m/%Y')}"
 
         cid_imagem = "dashboard_salesco"
 
